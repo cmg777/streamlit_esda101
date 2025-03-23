@@ -7,8 +7,11 @@ from branca.colormap import LinearColormap
 # Load the GeoJSON data
 data = gpd.read_file('https://github.com/quarcs-lab/project2021o-notebook/raw/main/map_and_data.geojson')
 
-# Create a map centered on the mean coordinates of the data
-m = folium.Map(location=data.geometry.centroid.mean().tolist(), zoom_start=6, tiles='CartoDB positron')
+# Calculate the centroid of the entire GeoDataFrame
+centroid = data.geometry.unary_union.centroid
+
+# Create a map centered on the centroid of the data
+m = folium.Map(location=[centroid.y, centroid.x], zoom_start=6, tiles='CartoDB positron')
 
 # Create a colormap
 colormap = LinearColormap(colors=['blue', 'white', 'red'], vmin=data['imds'].min(), vmax=data['imds'].max())
