@@ -108,11 +108,32 @@ try:
         # Creates a heading for the data section
         st.subheader("Data Summary")
         
-        # Displays statistical summary of the main variable (IMDS)
-        st.write("**IMDS Statistics:**")
-        stats = data["imds"].describe().reset_index()  # Generates descriptive statistics and resets index
-        stats.columns = ["Statistic", "Value"]         # Renames columns for clarity
-        st.dataframe(stats, use_container_width=True)  # Displays the statistics in a table
+        # Creates a container for the statistics table that will update when the selected column changes
+        stats_container = st.container()
+        
+        with stats_container:
+            # Provides statistical summary of the selected variable
+            st.write(f"**{color_column} Statistics:**")
+            stats = data[color_column].describe().reset_index()  # Generates descriptive statistics for the selected column
+            stats.columns = ["Statistic", "Value"]         # Renames columns for clarity
+            
+            # Format the values based on data type (e.g., percentiles vs counts)
+            if stats["Value"].dtype == "float64":
+                stats["Value"] = stats["Value"].apply(lambda x: f"{x:.4f}" if isinstance(x, (int, float)) else x)
+            
+            st.dataframe(stats, use_container_width=True)  # Displays the statistics in a table
+            
+            # Add information about the selected variable's range and distribution
+            min_val = data[color_column].min()
+            max_val = data[color_column].max()
+            st.info(f"Range: {min_val:.4f} to {max_val:.4f}")
+            
+            # Calculate and display regions with extreme values
+            if "mun" in data.columns:  # Check if municipality column exists
+                top_region = data.loc[data[color_column].idxmax(), "mun"]
+                bottom_region = data.loc[data[color_column].idxmin(), "mun"]
+                st.text(f"Highest value: {top_region}")
+                st.text(f"Lowest value: {bottom_region}")
         
         # Optional display of the full dataset (without geometry column to save space)
         if st.checkbox("Show raw data"):
