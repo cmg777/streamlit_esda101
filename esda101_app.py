@@ -14,8 +14,7 @@ st.title("Interactive Choropleth Map")
 
 # Add a description
 st.markdown("""
-This application displays a choropleth map showing the Index of Multiple Deprivation Scores (IMDS).
-Use the controls in the sidebar to customize the visualization.
+This application displays a choropleth map showing the Index of Sustanable Development at the municipal level.
 """)
 
 # Create sidebar for controls
