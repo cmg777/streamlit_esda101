@@ -722,106 +722,82 @@ try:
                     
                     # Optionally add regression analysis
                     if st.checkbox("Show regression analysis", value=False):
-                        import statsmodels.api as sm
-                        from statsmodels.formula.api import ols
+                        st.info("""
+                        **Advanced Regression Analysis**
                         
-                        # Let user select independent variables
-                        reg_vars = st.multiselect(
-                            "Select variables for regression model (independent variables)",
-                            options=correlation_vars,
-                            default=[top_corr_vars[0]] if top_corr_vars else [],
-                            format_func=lambda x: variable_labels.get(x, x)
-                        )
+                        Advanced regression analysis requires the statsmodels library, which is not currently available in this environment.
                         
-                        if reg_vars:
-                            # Create formula for regression
-                            formula = f"`{color_column}` ~ " + " + ".join([f"`{var}`" for var in reg_vars])
+                        A full regression analysis would provide:
+                        - Model coefficients and their significance
+                        - R-squared and adjusted R-squared values
+                        - F-statistic and p-values
+                        - Regression diagnostics like residual plots
+                        
+                        To perform this analysis, you could export the data and use the statsmodels package in a local Python environment.
+                        """)
+                        
+                        # Show a simple linear relationship using numpy instead
+                        if len(correlation_vars) > 0:
+                            top_corr_var = corr_data.iloc[0]["Variable"]
+                            top_corr_label = variable_labels.get(top_corr_var, top_corr_var)
                             
+                            # Create scatter plot with trend line using px
+                            reg_fig = px.scatter(
+                                data,
+                                x=color_column,
+                                y=top_corr_var,
+                                hover_name="mun",
+                                labels={color_column: column_label, top_corr_var: top_corr_label},
+                                title=f"Simple Linear Relationship: {column_label} vs {top_corr_label}",
+                                trendline="ols"  # Built-in OLS trend line from Plotly
+                            )
+                            
+                            st.plotly_chart(reg_fig, use_container_width=True)
+                            
+                            # Calculate and show basic regression statistics using numpy
+                            import numpy as np
+                            
+                            X = data[color_column].values
+                            y = data[top_corr_var].values
+                            
+                            # Drop rows with missing values
+                            mask = ~(np.isnan(X) | np.isnan(y))
+                            X = X[mask]
+                            y = y[mask]
+                            
+                            # Add a constant column for intercept
+                            X_with_const = np.column_stack((np.ones(len(X)), X))
+                            
+                            # Calculate coefficients using normal equation
                             try:
-                                # Fit regression model
-                                reg_data = data[[color_column] + reg_vars].dropna()
-                                model = ols(formula, data=reg_data).fit()
+                                beta = np.linalg.inv(X_with_const.T @ X_with_const) @ X_with_const.T @ y
+                                intercept, slope = beta
                                 
-                                # Display regression results
-                                st.markdown("### Regression Analysis Results")
-                                st.text(f"Model formula: {color_column} ~ {' + '.join(reg_vars)}")
+                                # Calculate predictions
+                                y_pred = intercept + slope * X
                                 
-                                # Show regression statistics
+                                # Calculate R-squared
+                                mean_y = np.mean(y)
+                                ss_total = np.sum((y - mean_y) ** 2)
+                                ss_residual = np.sum((y - y_pred) ** 2)
+                                r_squared = 1 - (ss_residual / ss_total)
+                                
+                                # Display results
+                                st.markdown("#### Basic Regression Results")
+                                st.markdown(f"**Equation**: {top_corr_label} = {intercept:.4f} + {slope:.4f} × {column_label}")
+                                st.markdown(f"**R-squared**: {r_squared:.4f}")
+                                
+                                # Show stats in a better format
                                 reg_stats_col1, reg_stats_col2 = st.columns(2)
                                 with reg_stats_col1:
-                                    st.metric("R-squared", f"{model.rsquared:.4f}")
-                                    st.metric("Adjusted R-squared", f"{model.rsquared_adj:.4f}")
-                                    st.metric("F-statistic", f"{model.fvalue:.4f}")
+                                    st.metric("Intercept", f"{intercept:.4f}")
+                                    st.metric("R-squared", f"{r_squared:.4f}")
                                 with reg_stats_col2:
-                                    st.metric("p-value", f"{model.f_pvalue:.4f}")
-                                    st.metric("AIC", f"{model.aic:.4f}")
-                                    st.metric("BIC", f"{model.bic:.4f}")
+                                    st.metric("Slope", f"{slope:.4f}")
+                                    st.metric("Correlation", f"{np.corrcoef(X, y)[0,1]:.4f}")
                                 
-                                # Show coefficients
-                                coef_df = pd.DataFrame({
-                                    'Variable': ['Intercept'] + reg_vars,
-                                    'Coefficient': [model.params['Intercept']] + [model.params[var] for var in reg_vars],
-                                    'Std Error': [model.bse['Intercept']] + [model.bse[var] for var in reg_vars],
-                                    'p-value': [model.pvalues['Intercept']] + [model.pvalues[var] for var in reg_vars]
-                                })
-                                
-                                # Format p-values
-                                coef_df['Significance'] = coef_df['p-value'].apply(
-                                    lambda p: '***' if p < 0.001 else ('**' if p < 0.01 else ('*' if p < 0.05 else 'ns'))
-                                )
-                                
-                                st.markdown("#### Coefficients")
-                                st.dataframe(coef_df.round(4), use_container_width=True, hide_index=True)
-                                
-                                st.markdown("""
-                                **Significance codes:**  
-                                \* p < 0.05, \*\* p < 0.01, \*\*\* p < 0.001, ns = not significant
-                                """)
-                                
-                                # Regression diagnostics
-                                if st.checkbox("Show regression diagnostics", value=False):
-                                    st.markdown("#### Regression Diagnostics")
-                                    
-                                    # Add predictions to the data
-                                    reg_data['predicted'] = model.predict()
-                                    reg_data['residuals'] = model.resid
-                                    
-                                    diag_col1, diag_col2 = st.columns(2)
-                                    
-                                    with diag_col1:
-                                        # Residuals vs Fitted plot
-                                        resid_fig = px.scatter(
-                                            reg_data,
-                                            x='predicted',
-                                            y='residuals',
-                                            title="Residuals vs Fitted",
-                                            labels={'predicted': 'Fitted values', 'residuals': 'Residuals'}
-                                        )
-                                        resid_fig.add_hline(y=0, line_dash="dash", line_color="red")
-                                        st.plotly_chart(resid_fig, use_container_width=True)
-                                    
-                                    with diag_col2:
-                                        # QQ Plot of residuals
-                                        from scipy import stats
-                                        
-                                        qq_fig = px.scatter(
-                                            x=stats.probplot(reg_data['residuals'], dist="norm")[0][0],
-                                            y=stats.probplot(reg_data['residuals'], dist="norm")[0][1],
-                                            title="Normal Q-Q Plot",
-                                            labels={'x': 'Theoretical Quantiles', 'y': 'Sample Quantiles'}
-                                        )
-                                        
-                                        # Add the reference line
-                                        line_x = stats.probplot(reg_data['residuals'], dist="norm")[0][0]
-                                        line_y = stats.probplot(reg_data['residuals'], dist="norm")[1][0] + stats.probplot(reg_data['residuals'], dist="norm")[1][1] * line_x
-                                        
-                                        qq_line = px.line(x=line_x, y=line_y)
-                                        qq_fig.add_trace(qq_line.data[0])
-                                        
-                                        st.plotly_chart(qq_fig, use_container_width=True)
-                                
-                            except Exception as e:
-                                st.error(f"Error in regression analysis: {str(e)}")
+                            except np.linalg.LinAlgError:
+                                st.error("Unable to calculate regression due to linear algebra error (possibly collinearity or insufficient data).")
                 
             elif corr_options == "Correlation Matrix":
                 # Select variables for correlation matrix
@@ -1968,29 +1944,6 @@ except Exception as e:
     logging.error(f"Unexpected error: {str(e)}", exc_info=True)
 
 # Add documentation about map styles
-st.markdown("---")
-mapstyles_container = st.expander("About Map Styles", expanded=False)
-
-with mapstyles_container:
-    st.markdown("""
-    ### Available Map Styles
-    
-    This application offers several map styles that work reliably with Plotly Express:
-    
-    - **Carto Light**: A clean, light-colored map style ideal for visualizing data with darker colors
-    - **Carto Dark**: A dark-themed map that works well for visualizing data with brighter colors
-    - **OpenStreetMap**: Detailed street map showing roads, buildings, and landmarks
-    - **White Background**: Minimal style with just a white background, perfect for focusing solely on your data
-    - **Stamen Terrain**: Emphasizes terrain and natural features, useful for rural or environmental data
-    - **Stamen Toner**: High-contrast black and white style that highlights road networks
-    - **Stamen Watercolor**: Artistic watercolor-like rendering, adds a unique aesthetic to your visualizations
-    
-    When choosing a map style, consider:
-    - The color palette of your data
-    - Whether you need to see geographic features
-    - The purpose of your visualization (analysis vs. presentation)
-    """)
-
 # FOOTER - Adds attribution and source information at the bottom of the page
 st.markdown("---")  # Horizontal divider
 st.markdown("Data source: [GitHub Project Repository](https://github.com/quarcs-lab/project2021o-notebook)")
