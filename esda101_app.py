@@ -45,17 +45,6 @@ try:
     # Display available columns for coloring
     numeric_columns = data.select_dtypes(include=['float64', 'int64']).columns.tolist()
     
-    # Select color variable (default to IMDS if available)
-    color_var = st.sidebar.selectbox(
-        "Select variable for coloring",
-        options=numeric_columns,
-        index=numeric_columns.index("imds") if "imds" in numeric_columns else 0
-    )
-    
-    # Color scale options
-    color_scales = ["viridis", "plasma", "inferno", "magma", "cividis", "blues", "reds", "greens"]
-    color_scale = st.sidebar.selectbox("Color scale", options=color_scales, index=0)
-    
     # Map style options
     map_styles = ["carto-positron", "open-street-map", "white-bg", "carto-darkmatter"]
     map_style = st.sidebar.selectbox("Map style", options=map_styles, index=0)
@@ -73,36 +62,38 @@ try:
         # Convert GeoDataFrame to GeoJSON dictionary
         geojson_dict = data.__geo_interface__
         
-        # Create the choropleth map
+        # Create the choropleth map with updated configuration
         fig = px.choropleth_mapbox(
             data_frame=data,
             geojson=geojson_dict,
             locations="id",
-            color=color_var,
+            color="imds",
+            hover_name="mun",
+            hover_data=["imds", "rank_imds"],
+            color_continuous_scale="viridis",
             mapbox_style=map_style,
             zoom=zoom,
             center={"lat": data.geometry.centroid.y.mean(), "lon": data.geometry.centroid.x.mean()},
-            opacity=opacity,
-            color_continuous_scale=color_scale,
-            labels={color_var: color_var.upper()}
+            opacity=opacity
         )
         
-        # Improve the figure layout
+        # Improve the figure layout with explicit dimensions
         fig.update_layout(
             margin={"r": 0, "t": 0, "l": 0, "b": 0},
+            width=630,
             height=600
         )
         
         # Display the figure
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, use_container_width=False)
     
     with col2:
         # Data summary
         st.subheader("Data Summary")
         
-        # Show statistics for the selected variable
-        st.write(f"**{color_var.upper()} Statistics:**")
-        stats = data[color_var].describe().reset_index()
+        # Show statistics for IMDS variable
+        st.write("**IMDS Statistics:**")
+        stats = data["imds"].describe().reset_index()
         stats.columns = ["Statistic", "Value"]
         st.dataframe(stats, use_container_width=True)
         
