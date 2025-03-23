@@ -7,6 +7,8 @@ import json                        # For GeoJSON processing and export
 import csv                         # For reading the data dictionary
 import os                          # For file path operations
 import logging                     # For error logging
+import requests                    # For making HTTP requests to external APIs
+from datetime import datetime      # For timestamping
 from typing import Dict, List, Optional, Union, Any  # Type hints for better code documentation
 
 # Configure logging
@@ -217,13 +219,54 @@ try:
     )
     
     # Dropdown menu for selecting the base map style
-    map_styles = ["carto-positron", "open-street-map", "white-bg", "carto-darkmatter"]
-    map_style = st.sidebar.selectbox(
+    map_styles = {
+        "Light Theme": "carto-positron",
+        "Dark Theme": "carto-darkmatter",
+        "OpenStreetMap": "open-street-map",
+        "White Background": "white-bg",
+        "Satellite": "satellite",
+        "Satellite Streets": "satellite-streets",
+        "Dark": "dark",
+        "Light": "light",
+        "Outdoors": "outdoors",
+        "Streets": "streets",
+        "Stamen Terrain": "stamen-terrain",
+        "Stamen Toner": "stamen-toner",
+        "Stamen Watercolor": "stamen-watercolor"
+    }
+    
+    # Mapbox token for custom styles (uncomment and add your token to enable more styles)
+    # mapbox_token = st.sidebar.text_input("Mapbox Token (optional)", type="password")
+    # if mapbox_token:
+    #     px.set_mapbox_access_token(mapbox_token)
+    
+    # Special section for nighttime lights
+    st.sidebar.markdown("---")
+    nighttime_section = st.sidebar.expander("Nighttime Lights Options", expanded=False)
+    
+    with nighttime_section:
+        st.markdown("""
+        To visualize true nighttime lights data:
+        
+        1. The "Dark" map style provides a good base for nighttime visualization
+        2. For NASA's Earth at Night imagery, you would need:
+           - A Mapbox account with access token
+           - A custom style using NASA's Black Marble dataset
+           
+        Learn more at [NASA's Black Marble](https://blackmarble.gsfc.nasa.gov/)
+        """)
+    st.sidebar.markdown("---")
+    
+    # Map style selection with descriptive labels
+    style_name = st.sidebar.selectbox(
         "Map style", 
-        options=map_styles, 
+        options=list(map_styles.keys()),
         index=0,
         help="Select the background map design"
     )
+    
+    # Get the actual style ID for Plotly
+    map_style = map_styles[style_name]
     
     # Color scale selection
     color_scales = ["viridis", "plasma", "inferno", "magma", "cividis", 
@@ -382,8 +425,26 @@ try:
                 if "mun" in data.columns:  # Check if municipality column exists
                     top_region = data.loc[data[color_column].idxmax(), "mun"]
                     bottom_region = data.loc[data[color_column].idxmin(), "mun"]
-                    st.text(f"Highest value: {top_region}")
-                    st.text(f"Lowest value: {bottom_region}")
+                    
+                    # Create a more visually appealing display for extremes
+                    extreme_col1, extreme_col2 = st.columns(2)
+                    with extreme_col1:
+                        st.metric(
+                            "Highest value", 
+                            f"{data[color_column].max():.4f}", 
+                            delta=None,
+                            delta_color="normal"
+                        )
+                        st.text(f"Region: {top_region}")
+                    
+                    with extreme_col2:
+                        st.metric(
+                            "Lowest value", 
+                            f"{data[color_column].min():.4f}", 
+                            delta=None,
+                            delta_color="normal"
+                        )
+                        st.text(f"Region: {bottom_region}")
             
             # Region comparison section (if regions selected)
             if selected_regions:
@@ -568,7 +629,50 @@ except Exception as e:
     # Log the error for debugging
     logging.error(f"Unexpected error: {str(e)}", exc_info=True)
 
+# Add a section for nighttime lights data integration
+st.markdown("---")
+nightlights_container = st.expander("Nighttime Lights Integration Options", expanded=False)
+
+with nightlights_container:
+    st.markdown("""
+    ### Nighttime Lights Data Integration
+    
+    This application can be extended to incorporate NASA's Black Marble nighttime lights data for advanced analysis.
+    
+    **Options for Integration:**
+    
+    1. **Direct API Access (requires NASA Earth Observations API key)**
+       - Access recent nighttime imagery
+       - Overlay with existing municipal boundaries
+       - Create nighttime-specific analyses
+    
+    2. **Using Preprocessed Data**
+       - Upload pre-processed nighttime lights data
+       - Join with existing municipal data
+       - Create combined indicators
+    
+    3. **Custom Map Style Integration**
+       - Provide a Mapbox token
+       - Create a custom style using nighttime imagery
+       - Visualize your data with nighttime lights as the background
+    
+    **Implementation Example:**
+    ```python
+    # Example code to fetch Black Marble data (simplified)
+    def fetch_nighttime_lights(lat, lon, api_key):
+        url = f"https://api.nasa.gov/planetary/earth/imagery?lon={lon}&lat={lat}&date=2020-01-01&dim=0.15&api_key={api_key}"
+        response = requests.get(url)
+        if response.status_code == 200:
+            # Process the image data
+            return response.content
+        return None
+    ```
+    
+    For more information, visit [NASA's Black Marble](https://blackmarble.gsfc.nasa.gov/) project.
+    """)
+
 # FOOTER - Adds attribution and source information at the bottom of the page
 st.markdown("---")  # Horizontal divider
 st.markdown("Data source: [GitHub Project Repository](https://github.com/quarcs-lab/project2021o-notebook)")
 st.markdown(f"Application last updated: {pd.Timestamp.now().strftime('%Y-%m-%d')}")
+st.markdown("Additional map styles including nighttime visualization options have been added to this version.")
