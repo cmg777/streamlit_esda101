@@ -122,7 +122,7 @@ def load_data_dictionary():
         st.warning(f"Could not load data dictionary: {e}. Using original column names.")
         return {}
 
-@st.experimental_memo
+@st.cache_data
 def get_filtered_data(data, filters=None):
     """
     Filter the dataset based on specified criteria.
