@@ -1,53 +1,128 @@
 import streamlit as st
 import geopandas as gpd
-import folium
-from streamlit_folium import folium_static
-from branca.colormap import LinearColormap
+import plotly.express as px
+import pandas as pd
 
-# Load the GeoJSON data
-data = gpd.read_file('https://github.com/quarcs-lab/project2021o-notebook/raw/main/map_and_data.geojson')
+# Set page configuration
+st.set_page_config(
+    page_title="Choropleth Map Visualization",
+    layout="wide"
+)
 
-# Calculate the centroid of the entire GeoDataFrame
-centroid = data.geometry.unary_union.centroid
+# Add a title to the app
+st.title("Interactive Choropleth Map")
 
-# Create a map centered on the centroid of the data
-m = folium.Map(location=[centroid.y, centroid.x], zoom_start=6, tiles='CartoDB positron')
+# Add a description
+st.markdown("""
+This application displays a choropleth map showing the Index of Multiple Deprivation Scores (IMDS).
+Use the controls in the sidebar to customize the visualization.
+""")
 
-# Create a colormap
-colormap = LinearColormap(colors=['blue', 'white', 'red'], vmin=data['imds'].min(), vmax=data['imds'].max())
+# Create sidebar for controls
+st.sidebar.header("Map Controls")
 
-# Add the choropleth layer
-folium.Choropleth(
-    geo_data=data,
-    name='choropleth',
-    data=data,
-    columns=['name', 'imds'],
-    key_on='feature.properties.name',
-    fill_color='YlOrRd',
-    fill_opacity=0.7,
-    line_opacity=0.2,
-    legend_name='IMDS'
-).add_to(m)
+# Load data function with caching to improve performance
+@st.cache_data
+def load_data():
+    # Load data from the GitHub repository
+    data = gpd.read_file('https://github.com/quarcs-lab/project2021o-notebook/raw/main/map_and_data.geojson')
+    data = data.to_crs(epsg=4326)
+    
+    # Ensure a unique ID column
+    data["id"] = data.index.astype(str)
+    
+    return data
 
-# Add GeoJson layer with tooltips
-folium.GeoJson(
-    data,
-    style_function=lambda feature: {
-        'fillColor': colormap(feature['properties']['imds']),
-        'color': 'gray',
-        'weight': 0.5,
-        'fillOpacity': 0.7
-    },
-    tooltip=folium.GeoJsonTooltip(
-        fields=['mun', 'imds', 'rank_imds'],
-        aliases=['Municipality', 'IMDS', 'IMDS Rank'],
-        style=("background-color: white; color: #333333; font-family: arial; font-size: 12px; padding: 10px;")
+# Load the data
+try:
+    with st.spinner("Loading geographic data..."):
+        data = load_data()
+    
+    # Show data info in the sidebar
+    st.sidebar.subheader("Dataset Information")
+    st.sidebar.info(f"Number of regions: {len(data)}")
+    
+    # Display available columns for coloring
+    numeric_columns = data.select_dtypes(include=['float64', 'int64']).columns.tolist()
+    
+    # Select color variable (default to IMDS if available)
+    color_var = st.sidebar.selectbox(
+        "Select variable for coloring",
+        options=numeric_columns,
+        index=numeric_columns.index("imds") if "imds" in numeric_columns else 0
     )
-).add_to(m)
+    
+    # Color scale options
+    color_scales = ["viridis", "plasma", "inferno", "magma", "cividis", "blues", "reds", "greens"]
+    color_scale = st.sidebar.selectbox("Color scale", options=color_scales, index=0)
+    
+    # Map style options
+    map_styles = ["carto-positron", "open-street-map", "white-bg", "carto-darkmatter"]
+    map_style = st.sidebar.selectbox("Map style", options=map_styles, index=0)
+    
+    # Opacity slider
+    opacity = st.sidebar.slider("Map opacity", min_value=0.0, max_value=1.0, value=0.6, step=0.1)
+    
+    # Zoom level slider
+    zoom = st.sidebar.slider("Zoom level", min_value=3.0, max_value=10.0, value=4.5, step=0.5)
+    
+    # Create two columns for display
+    col1, col2 = st.columns([2, 1])
+    
+    with col1:
+        # Convert GeoDataFrame to GeoJSON dictionary
+        geojson_dict = data.__geo_interface__
+        
+        # Create the choropleth map
+        fig = px.choropleth_mapbox(
+            data_frame=data,
+            geojson=geojson_dict,
+            locations="id",
+            color=color_var,
+            mapbox_style=map_style,
+            zoom=zoom,
+            center={"lat": data.geometry.centroid.y.mean(), "lon": data.geometry.centroid.x.mean()},
+            opacity=opacity,
+            color_continuous_scale=color_scale,
+            labels={color_var: color_var.upper()}
+        )
+        
+        # Improve the figure layout
+        fig.update_layout(
+            margin={"r": 0, "t": 0, "l": 0, "b": 0},
+            height=600
+        )
+        
+        # Display the figure
+        st.plotly_chart(fig, use_container_width=True)
+    
+    with col2:
+        # Data summary
+        st.subheader("Data Summary")
+        
+        # Show statistics for the selected variable
+        st.write(f"**{color_var.upper()} Statistics:**")
+        stats = data[color_var].describe().reset_index()
+        stats.columns = ["Statistic", "Value"]
+        st.dataframe(stats, use_container_width=True)
+        
+        # Option to show raw data
+        if st.checkbox("Show raw data"):
+            st.dataframe(data.drop(columns='geometry'), use_container_width=True)
+        
+        # Download option
+        csv_data = data.drop(columns='geometry').to_csv(index=False)
+        st.download_button(
+            label="Download data as CSV",
+            data=csv_data,
+            file_name="map_data.csv",
+            mime="text/csv"
+        )
 
-# Add colormap to the map
-colormap.add_to(m)
+except Exception as e:
+    st.error(f"An error occurred: {e}")
+    st.error("Please check the data source or report this issue.")
 
-# Display the map in Streamlit
-st.title('Choropleth Map')
-folium_static(m)
+# Footer
+st.markdown("---")
+st.markdown("Data source: [GitHub Project Repository](https://github.com/quarcs-lab/project2021o-notebook)")
