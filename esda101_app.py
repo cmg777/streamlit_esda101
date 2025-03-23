@@ -4,6 +4,7 @@ import geopandas as gpd            # Extends pandas to work with geospatial data
 import plotly.express as px        # High-level interface for creating interactive visualizations
 import pandas as pd                # For data manipulation and analysis
 import json                        # For GeoJSON processing and export
+import csv                         # For reading the data dictionary
 
 # PAGE CONFIGURATION - Sets up how the application appears in the browser
 st.set_page_config(
@@ -16,13 +17,14 @@ st.title("Interactive Choropleth Map")          # Creates the main heading
 
 # Adds explanatory text using Markdown formatting
 st.markdown("""
-This application displays a choropleth map showing the Index of Sustanable Development at the municipal level.
+This application displays a choropleth map showing the Index of Sustainable Development at the municipal level. 
+The application includes a data dictionary with 139 variables, allowing you to explore different dimensions of municipal development.
 """)
 
 # SIDEBAR SETUP - Creates a navigation panel on the left side of the screen
 st.sidebar.header("Map Controls")               # Adds a header to the sidebar
 
-# DATA LOADING FUNCTION - Defines how to fetch and prepare the geospatial data
+# DATA LOADING FUNCTIONS - Define how to fetch and prepare the geospatial data
 @st.cache_data                                  # Caching decorator prevents reloading on every interaction
 def load_data():
     # Loads geographic data directly from a GitHub repository URL
@@ -36,11 +38,31 @@ def load_data():
     
     return data
 
+@st.cache_data
+def load_data_dictionary():
+    """Load and parse the data dictionary CSV file."""
+    try:
+        # Create a dictionary mapping variable names to their human-readable labels
+        variable_labels = {}
+        
+        # Read the data dictionary file
+        with open('dataDefinitions.csv', 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                if 'Variable' in row and 'Label' in row:
+                    variable_labels[row['Variable']] = row['Label']
+        
+        return variable_labels
+    except Exception as e:
+        st.warning(f"Could not load data dictionary: {e}. Using original column names.")
+        return {}
+
 # MAIN APPLICATION BLOCK - Wrapped in try-except for error handling
 try:
     # Shows a loading indicator while fetching data
     with st.spinner("Loading geographic data..."):
         data = load_data()
+        variable_labels = load_data_dictionary()
     
     # SIDEBAR INFORMATION - Displays metadata about the dataset
     st.sidebar.subheader("Dataset Information")
@@ -49,13 +71,32 @@ try:
     # Identifies numeric columns that could potentially be used for choropleth coloring
     numeric_columns = data.select_dtypes(include=['float64', 'int64']).columns.tolist()
     
+    # Create a list of column options with labels for the dropdown
+    column_options = []
+    for col in numeric_columns:
+        # Use the label from the dictionary if available, otherwise use the column name
+        display_name = variable_labels.get(col, col)
+        column_options.append({"label": display_name, "value": col})
+    
+    # Sort options alphabetically by display name for easier navigation
+    column_options.sort(key=lambda x: x["label"])
+    
     # USER CONTROLS - Interactive elements for customizing the visualization
     
     # Dropdown for selecting which column to visualize on the map
+    # First find the index of the IMDS option
+    default_index = 0
+    for i, option in enumerate(column_options):
+        if option["value"] == "imds":
+            default_index = i
+            break
+    
+    # Use format_func to display the label while storing the actual column name
     color_column = st.sidebar.selectbox(
-        "Select data to visualize", 
-        options=numeric_columns,
-        index=numeric_columns.index("imds") if "imds" in numeric_columns else 0,
+        "Select data to visualize",
+        options=[option["value"] for option in column_options],
+        index=default_index,
+        format_func=lambda x: variable_labels.get(x, x),
         help="Choose which data column to display on the map"
     )
     
@@ -78,26 +119,44 @@ try:
         geojson_dict = data.__geo_interface__
         
         # Creates the interactive choropleth map with Plotly Express
+        # Get the human-readable label for the selected column
+        column_label = variable_labels.get(color_column, color_column)
+        
+        # Prepare hover data with labels
+        hover_cols = [color_column] + [col for col in numeric_columns[:3] if col != color_column]
+        
+        # Create a labels dictionary for better hover information
+        labels = {col: variable_labels.get(col, col) for col in hover_cols + ["mun"]}
+        
         fig = px.choropleth_mapbox(
             data_frame=data,                  # The source dataset with both geometry and attributes
             geojson=geojson_dict,             # The geographic boundaries in GeoJSON format
             locations="id",                   # Column that links data rows to geographic features
             color=color_column,               # Selected column to determine the color of each region
             hover_name="mun",                 # Municipality name shown in hover tooltip
-            hover_data=[color_column] + [col for col in numeric_columns[:3] if col != color_column], # Dynamic hover data
+            hover_data=hover_cols,            # Dynamic hover data
             color_continuous_scale="viridis", # Color gradient palette for the choropleth
             mapbox_style=map_style,           # Base map style from user selection
             zoom=zoom,                        # Initial zoom level from user selection
             center={"lat": data.geometry.centroid.y.mean(), 
                    "lon": data.geometry.centroid.x.mean()},  # Centers map on the data
-            opacity=opacity                   # Transparency level from user selection
+            opacity=opacity,                  # Transparency level from user selection
+            labels=labels,                    # Use dictionary of labels for better hover information
+            color_continuous_midpoint=data[color_column].median()  # Center color scale at median value
         )
         
         # Adjusts the figure layout for better display
+        # Get the human-readable label for the color bar title
+        column_label = variable_labels.get(color_column, color_column)
+        
         fig.update_layout(
             margin={"r": 0, "t": 0, "l": 0, "b": 0},  # Removes unnecessary margins
             width=630,                                 # Sets a fixed width for the map
-            height=600                                 # Sets a fixed height for the map
+            height=600,                                # Sets a fixed height for the map
+            coloraxis_colorbar=dict(
+                title=column_label,                    # Use the human-readable label for the color scale
+                title_side="right"                     # Position the title on the right side
+            )
         )
         
         # Renders the interactive map in the app
@@ -112,8 +171,9 @@ try:
         stats_container = st.container()
         
         with stats_container:
-            # Provides statistical summary of the selected variable
-            st.write(f"**{color_column} Statistics:**")
+            # Provides statistical summary of the selected variable with a human-readable label
+            column_label = variable_labels.get(color_column, color_column)
+            st.write(f"**{column_label} Statistics:**")
             stats = data[color_column].describe().reset_index()  # Generates descriptive statistics for the selected column
             stats.columns = ["Statistic", "Value"]         # Renames columns for clarity
             
