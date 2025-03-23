@@ -3,6 +3,7 @@ import streamlit as st             # Core Streamlit library for creating web app
 import geopandas as gpd            # Extends pandas to work with geospatial data
 import plotly.express as px        # High-level interface for creating interactive visualizations
 import pandas as pd                # For data manipulation and analysis
+import json                        # For GeoJSON processing and export
 
 # PAGE CONFIGURATION - Sets up how the application appears in the browser
 st.set_page_config(
@@ -50,6 +51,14 @@ try:
     
     # USER CONTROLS - Interactive elements for customizing the visualization
     
+    # Dropdown for selecting which column to visualize on the map
+    color_column = st.sidebar.selectbox(
+        "Select data to visualize", 
+        options=numeric_columns,
+        index=numeric_columns.index("imds") if "imds" in numeric_columns else 0,
+        help="Choose which data column to display on the map"
+    )
+    
     # Dropdown menu for selecting the base map style
     map_styles = ["carto-positron", "open-street-map", "white-bg", "carto-darkmatter"]
     map_style = st.sidebar.selectbox("Map style", options=map_styles, index=0)
@@ -73,9 +82,9 @@ try:
             data_frame=data,                  # The source dataset with both geometry and attributes
             geojson=geojson_dict,             # The geographic boundaries in GeoJSON format
             locations="id",                   # Column that links data rows to geographic features
-            color="imds",                     # Column used to determine the color of each region
+            color=color_column,               # Selected column to determine the color of each region
             hover_name="mun",                 # Municipality name shown in hover tooltip
-            hover_data=["imds", "rank_imds"], # Additional data shown when hovering over regions
+            hover_data=[color_column] + [col for col in numeric_columns[:3] if col != color_column], # Dynamic hover data
             color_continuous_scale="viridis", # Color gradient palette for the choropleth
             mapbox_style=map_style,           # Base map style from user selection
             zoom=zoom,                        # Initial zoom level from user selection
@@ -109,13 +118,27 @@ try:
         if st.checkbox("Show raw data"):
             st.dataframe(data.drop(columns='geometry'), use_container_width=True)
         
-        # DATA EXPORT - Creates a download button for the data
+        # DATA EXPORT - Creates download buttons for both CSV and GeoJSON formats
+        
+        # CSV download option (without geometry)
         csv_data = data.drop(columns='geometry').to_csv(index=False)  # Converts data to CSV format
         st.download_button(
             label="Download data as CSV",     # Button text
             data=csv_data,                    # Data to be downloaded
             file_name="map_data.csv",         # Default filename for the download
-            mime="text/csv"                   # MIME type for CSV files
+            mime="text/csv",                  # MIME type for CSV files
+            key="csv_download"                # Unique key for this button
+        )
+        
+        # GeoJSON download option (includes geometry)
+        import json
+        geojson_data = json.dumps(data.__geo_interface__, indent=2)  # Converts to GeoJSON with formatting
+        st.download_button(
+            label="Download data as GeoJSON", # Button text
+            data=geojson_data,                # GeoJSON data to be downloaded
+            file_name="map_data.geojson",     # Default filename for the download
+            mime="application/geo+json",      # MIME type for GeoJSON files
+            key="geojson_download"            # Unique key for this button
         )
 
 # ERROR HANDLING - Catches and displays any exceptions that occur
