@@ -220,42 +220,14 @@ try:
     
     # Dropdown menu for selecting the base map style
     map_styles = {
-        "Light Theme": "carto-positron",
-        "Dark Theme": "carto-darkmatter",
+        "Carto Light": "carto-positron",
+        "Carto Dark": "carto-darkmatter",
         "OpenStreetMap": "open-street-map",
         "White Background": "white-bg",
-        "Satellite": "satellite",
-        "Satellite Streets": "satellite-streets",
-        "Dark": "dark",
-        "Light": "light",
-        "Outdoors": "outdoors",
-        "Streets": "streets",
         "Stamen Terrain": "stamen-terrain",
         "Stamen Toner": "stamen-toner",
         "Stamen Watercolor": "stamen-watercolor"
     }
-    
-    # Mapbox token for custom styles (uncomment and add your token to enable more styles)
-    # mapbox_token = st.sidebar.text_input("Mapbox Token (optional)", type="password")
-    # if mapbox_token:
-    #     px.set_mapbox_access_token(mapbox_token)
-    
-    # Special section for nighttime lights
-    st.sidebar.markdown("---")
-    nighttime_section = st.sidebar.expander("Nighttime Lights Options", expanded=False)
-    
-    with nighttime_section:
-        st.markdown("""
-        To visualize true nighttime lights data:
-        
-        1. The "Dark" map style provides a good base for nighttime visualization
-        2. For NASA's Earth at Night imagery, you would need:
-           - A Mapbox account with access token
-           - A custom style using NASA's Black Marble dataset
-           
-        Learn more at [NASA's Black Marble](https://blackmarble.gsfc.nasa.gov/)
-        """)
-    st.sidebar.markdown("---")
     
     # Map style selection with descriptive labels
     style_name = st.sidebar.selectbox(
@@ -629,50 +601,31 @@ except Exception as e:
     # Log the error for debugging
     logging.error(f"Unexpected error: {str(e)}", exc_info=True)
 
-# Add a section for nighttime lights data integration
+# Add documentation about map styles
 st.markdown("---")
-nightlights_container = st.expander("Nighttime Lights Integration Options", expanded=False)
+mapstyles_container = st.expander("About Map Styles", expanded=False)
 
-with nightlights_container:
+with mapstyles_container:
     st.markdown("""
-    ### Nighttime Lights Data Integration
+    ### Available Map Styles
     
-    This application can be extended to incorporate NASA's Black Marble nighttime lights data for advanced analysis.
+    This application offers several map styles that work reliably with Plotly Express:
     
-    **Options for Integration:**
+    - **Carto Light**: A clean, light-colored map style ideal for visualizing data with darker colors
+    - **Carto Dark**: A dark-themed map that works well for visualizing data with brighter colors
+    - **OpenStreetMap**: Detailed street map showing roads, buildings, and landmarks
+    - **White Background**: Minimal style with just a white background, perfect for focusing solely on your data
+    - **Stamen Terrain**: Emphasizes terrain and natural features, useful for rural or environmental data
+    - **Stamen Toner**: High-contrast black and white style that highlights road networks
+    - **Stamen Watercolor**: Artistic watercolor-like rendering, adds a unique aesthetic to your visualizations
     
-    1. **Direct API Access (requires NASA Earth Observations API key)**
-       - Access recent nighttime imagery
-       - Overlay with existing municipal boundaries
-       - Create nighttime-specific analyses
-    
-    2. **Using Preprocessed Data**
-       - Upload pre-processed nighttime lights data
-       - Join with existing municipal data
-       - Create combined indicators
-    
-    3. **Custom Map Style Integration**
-       - Provide a Mapbox token
-       - Create a custom style using nighttime imagery
-       - Visualize your data with nighttime lights as the background
-    
-    **Implementation Example:**
-    ```python
-    # Example code to fetch Black Marble data (simplified)
-    def fetch_nighttime_lights(lat, lon, api_key):
-        url = f"https://api.nasa.gov/planetary/earth/imagery?lon={lon}&lat={lat}&date=2020-01-01&dim=0.15&api_key={api_key}"
-        response = requests.get(url)
-        if response.status_code == 200:
-            # Process the image data
-            return response.content
-        return None
-    ```
-    
-    For more information, visit [NASA's Black Marble](https://blackmarble.gsfc.nasa.gov/) project.
+    When choosing a map style, consider:
+    - The color palette of your data
+    - Whether you need to see geographic features
+    - The purpose of your visualization (analysis vs. presentation)
     """)
 
 # FOOTER - Adds attribution and source information at the bottom of the page
 st.markdown("---")  # Horizontal divider
 st.markdown("Data source: [GitHub Project Repository](https://github.com/quarcs-lab/project2021o-notebook)")
 st.markdown(f"Application last updated: {pd.Timestamp.now().strftime('%Y-%m-%d')}")
-st.markdown("Additional map styles including nighttime visualization options have been added to this version.")
