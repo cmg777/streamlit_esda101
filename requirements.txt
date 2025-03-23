@@ -1,6 +1,6 @@
 streamlit==1.31.0
-geopandas=0.10.2
-fiona=1.8.20
+geopandas==0.10.2
+fiona==1.8.20
 pandas==2.2.0
 matplotlib==3.8.2
 folium==0.15.0
