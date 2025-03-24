@@ -245,7 +245,7 @@ try:
             st.subheader("Data Summary")
             with st.container():
                 st.write(f"**{column_label} Statistics:**")
-                stats = data[color_column].describe().reset_index()
+                stats = data[color_column].describe().round(2).reset_index()
                 stats.columns = ["Statistic", "Value"]
                 stats["Value"] = stats["Value"].apply(lambda x: f"{x:.4f}" if isinstance(x, (int, float)) else x)
                 st.dataframe(stats, use_container_width=True)
