@@ -161,7 +161,7 @@ try:
     )
 
     # 🔸 Map style selection.
-    map_styles = {"Carto Light": "carto-positron", "Carto Dark": "carto-darkmatter", "OpenStreetMap": "open-street-map", "White Background": "white-bg"}
+    map_styles = {"Carto Dark": "carto-darkmatter", "Carto Light": "carto-positron",  "OpenStreetMap": "open-street-map", "White Background": "white-bg"}
     style_name = st.sidebar.selectbox("Map style", options=list(map_styles.keys()), index=0, help="Select background map design")
     map_style = map_styles[style_name]
 
@@ -174,7 +174,7 @@ try:
     midpoint = data[color_column].median() if use_median else st.sidebar.slider("Color scale midpoint", float(data[color_column].min()), float(data[color_column].max()), float(data[color_column].median()))
 
     # 🔸 Additional map controls for opacity and zoom.
-    opacity = st.sidebar.slider("Map opacity", min_value=0.0, max_value=1.0, value=0.6, step=0.1, help="Adjust transparency")
+    opacity = st.sidebar.slider("Map opacity", min_value=0.0, max_value=1.0, value=0.9, step=0.1, help="Adjust transparency")
     zoom = st.sidebar.slider("Zoom level", min_value=3.0, max_value=10.0, value=4.5, step=0.5, help="Adjust zoom")
 
     # 🔸 Sidebar control for comparing regions.
