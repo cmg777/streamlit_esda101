@@ -35,7 +35,7 @@ class DataLoadError(AppError):
 # 🔹 PAGE CONFIGURATION
 # This configures the Streamlit page settings.
 # 🔸 Sets page title, layout, and initial sidebar state.
-st.set_page_config(page_title="Choropleth Map Visualization", layout="wide", initial_sidebar_state="expanded")
+st.set_page_config(page_title="Exploratory Data Analysis of Regional Data", layout="wide", initial_sidebar_state="expanded")
 
 # 🔹 INITIALIZE SESSION STATE
 # This section initializes session variables to manage app state.
@@ -53,8 +53,7 @@ if "show_tutorial" not in st.session_state:
 # Sets the main title and provides a markdown description of the app.
 st.title("Interactive Choropleth Map")
 st.markdown("""
-This application displays a choropleth map showing the Index of Sustainable Development at the municipal level. 
-The application includes a data dictionary with 139 variables.
+This application displays a choropleth map for several indicators of regional development.
 """)
 
 # 🔹 SIDEBAR SETUP
