@@ -245,14 +245,14 @@ try:
             st.subheader("Data Summary")
             with st.container():
                 st.write(f"**{column_label} Statistics:**")
-                stats = data[color_column].describe().round(2).reset_index()
+                stats = data[color_column].describe().reset_index()
                 stats.columns = ["Statistic", "Value"]
-                stats["Value"] = stats["Value"].apply(lambda x: f"{x:.4f}" if isinstance(x, (int, float)) else x)
+                stats["Value"] = stats["Value"].apply(lambda x: f"{x:.2f}" if isinstance(x, (int, float)) else x)
                 st.dataframe(stats, use_container_width=True)
 
                 # Display the range of values.
                 min_val, max_val = data[color_column].min(), data[color_column].max()
-                st.info(f"Range: {min_val:.4f} to {max_val:.4f}")
+                st.info(f"Range: {min_val:.2f} to {max_val:.2f}")
 
                 # Identify regions with highest and lowest values.
                 if "mun" in data.columns:
@@ -260,10 +260,10 @@ try:
                     bottom_region = data.loc[data[color_column].idxmin(), "mun"]
                     extreme_col1, extreme_col2 = st.columns(2)
                     with extreme_col1:
-                        st.metric("Highest value", f"{max_val:.4f}", delta=None)
+                        st.metric("Highest value", f"{max_val:.2f}", delta=None)
                         st.text(f"Region: {top_region}")
                     with extreme_col2:
-                        st.metric("Lowest value", f"{min_val:.4f}", delta=None)
+                        st.metric("Lowest value", f"{min_val:.2f}", delta=None)
                         st.text(f"Region: {bottom_region}")
 
             # 🔸 Region comparison: Bar chart for selected regions.
