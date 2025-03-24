@@ -353,12 +353,9 @@ try:
 
     # 🔹 TAB 3: Documentation
     with tab3:
-        st.subheader("Documentation")
+        st.subheader("🧭 Documentation")
         st.markdown("""
 
-# Regional Development Indicators of Bolivia: An Interactive Dashboard
-
-## 🧭 About this Application
 
 This interactive application enables users to explore municipal development indicators across Bolivia. It offers:
 
@@ -381,10 +378,10 @@ This interactive application enables users to explore municipal development indi
 
 ---
 
-## 📚 Data Sources and Credits
+## 📚 Sources and Credits
 
-- Primary source: [Municipal Atlas of the SDGs in Bolivia](https://sdsnbolivia.org/Atlas/)  
-- App and computational notebook by [Carlos Mendez](https://carlos-mendez.org)
+- Primary data source: [Municipal Atlas of the SDGs in Bolivia 2020](https://sdsnbolivia.org/Atlas/)  
+- Web app and computational notebook by [Carlos Mendez](https://carlos-mendez.org)
 
 **Citation**:  
 Mendez, C. (2025, March 24). *Regional Development Indicators of Bolivia: A Dashboard for Exploratory Analysis* (Version 0.0.2) [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.15074864  
