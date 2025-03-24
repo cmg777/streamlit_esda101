@@ -179,7 +179,7 @@ try:
     st.session_state.selected_regions = selected_regions
 
     # 🔸 Define application tabs for organizing content.
-    tab1, tab2, tab3 = st.tabs(["Map Visualization", "Data Analysis", "Documentation"])
+    tab1, tab2, tab3 = st.tabs(["Map Visualization", "Exploratory Data Analysis (EDA)", "Documentation"])
 
     # 🔹 TAB 1: Map Visualization
     with tab1:
