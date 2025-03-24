@@ -166,7 +166,7 @@ try:
     map_style = map_styles[style_name]
 
     # 🔸 Color palette selection.
-    color_scales = ["coolwarm", "viridis", "plasma", "inferno", "magma", "cividis", "twilight", "RdBu_r", "Blues", "Greens", "Reds", "YlOrRd"]
+    color_scales = ["rdbu", "viridis", "plasma", "inferno", "magma", "cividis", "twilight", "RdBu_r", "Blues", "Greens", "Reds", "YlOrRd"]
     color_scale = st.sidebar.selectbox("Color palette", options=color_scales, index=0, help="Choose the color scheme")
 
     # 🔸 Configure color scale center using median or a custom slider.
