@@ -109,6 +109,15 @@ def load_data_dictionary() -> Dict[str, str]:
         st.warning(f"Could not load data dictionary: {e}. Using original column names.")
         return {}
 
+# 🔹 SIDEBAR ADDITIONAL LINK
+# Adds a link to open the computational notebook.
+st.sidebar.markdown("""---""")
+st.sidebar.markdown(
+    '<a href="https://colab.research.google.com/drive/1JHf8wPxSxBdKKhXaKQZUzhEpVznKGiep?usp=sharing" target="_blank">'
+    '<strong>Open Computational Notebook</strong></a>',
+    unsafe_allow_html=True
+)
+
 # 🔹 MAIN APPLICATION BLOCK
 # This section encapsulates the primary logic of the application.
 try:
@@ -178,7 +187,7 @@ try:
     )
     st.session_state.selected_regions = selected_regions
 
-    # 🔸 Define application tabs for organizing content.
+    # 🔹 Define application tabs for organizing content.
     tab1, tab2, tab3 = st.tabs(["Map Visualization", "Exploratory Data Analysis (EDA)", "Documentation"])
 
     # 🔹 TAB 1: Map Visualization
@@ -352,16 +361,16 @@ This interactive choropleth map application allows you to explore various munici
 ### Data Sources
 
 The data comes from multiple sources compiled into a single geospatial dataset. It includes:
-- Socioeconomic indicators
-- Development indices
-- Geographic information
+- 🟢 Socioeconomic indicators
+- 🟢 Development indices
+- 🟢 Geographic information
 
 ### Using the Application
-1. **Select variables**: Use the dropdown or search.
-2. **Customize the map**.
-3. **Explore the data**: View statistics.
-4. **Compare regions**.
-5. **Download data**.
+1. 📝 **Select variables**: Use the dropdown or search.
+2. 🎨 **Customize the map**.
+3. 📊 **Explore the data**: View statistics.
+4. 🔍 **Compare regions**.
+5. 💾 **Download data**.
         
 ### Variable Descriptions""")
 
@@ -375,6 +384,13 @@ The data comes from multiple sources compiled into a single geospatial dataset. 
                 st.info("No matching variables found")
         else:
             st.warning("Variable descriptions are not available")
+        
+        st.markdown("---")
+        st.markdown(
+            '<a href="https://colab.research.google.com/drive/1JHf8wPxSxBdKKhXaKQZUzhEpVznKGiep?usp=sharing" target="_blank">'
+            '<strong>Open Computational Notebook</strong></a>',
+            unsafe_allow_html=True
+        )
 
     # 🔹 DATA EXPORT SECTION
     st.markdown("---")
