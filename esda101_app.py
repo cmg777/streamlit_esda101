@@ -278,25 +278,14 @@ try:
         st.subheader("Data Exploration")
         st.write("### Distribution Analysis")
 
-        # 🔸 Histogram to show data distribution with viridis color scale.
-        hist_fig = px.histogram(
-            data, 
-            x=color_column, 
-            title=f"Distribution of {column_label}", 
-            labels={color_column: column_label},
-            color=color_column,  # Color bars based on the continuous values of the variable.
-            color_continuous_scale='viridis'
-        )
-        st.plotly_chart(hist_fig, use_container_width=True)
-
         # 🔸 Histogram to show data distribution.
-        #hist_fig = px.histogram(data, x=color_column, title=f"Distribution of {column_label}", labels={color_column: column_label})
-        #st.plotly_chart(hist_fig, use_container_width=True)
+        hist_fig = px.histogram(data, x=color_column, title=f"Distribution of {column_label}", labels={color_column: column_label})
+        st.plotly_chart(hist_fig, use_container_width=True)
 
         # 🔸 Optional box plot display.
         if st.checkbox("Show box plot"):
             box_fig = px.box(data, y=color_column, labels={color_column: column_label}, title=f"Box Plot of {column_label}")
-            st.plotly_chart(box_fig, use_container_width=True)
+            st.plotly_chart(box_fig, use_container_width=False)
 
         # 🔸 Optional correlation analysis with other variables.
         if st.checkbox("Show correlation with other variables"):
