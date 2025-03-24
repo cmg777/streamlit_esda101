@@ -282,29 +282,58 @@ try:
         hist_fig = px.histogram(data, x=color_column, title=f"Distribution of {column_label}", labels={color_column: column_label})
         st.plotly_chart(hist_fig, use_container_width=True)
 
-        # 🔸 Optional box plot display.
+        # 🔸 Box plot
         box_fig = px.box(data, y=color_column, labels={color_column: column_label}, title=f"Box Plot of {column_label}")
         st.plotly_chart(box_fig, use_container_width=False)
 
-        # 🔸 Optional correlation analysis with other variables.
+        # 🔸 Correlation analysis 
+        # Here, the y-axis variable is assumed to be "imds" (selected via color_column) 
+        # and the default x-axis variable is "ln_t400NTLpc2012" if available.
+        default_corr = ["ln_t400NTLpc2012"] if "ln_t400NTLpc2012" in [opt["value"] for opt in column_options if opt["value"] != color_column] else []
+
         correlation_vars = st.multiselect(
             "Select variables to correlate",
             options=[opt["value"] for opt in column_options if opt["value"] != color_column],
-            default=[numeric_columns[0]] if numeric_columns and numeric_columns[0] != color_column else [],
+            default=default_corr,
             format_func=lambda x: variable_labels.get(x, x)
         )
-        if correlation_vars:
-            corr_data = data[[color_column] + correlation_vars].corr()[color_column].drop(color_column).reset_index()
-            corr_data.columns = ["Variable", "Correlation with " + column_label]
-            corr_data["Correlation with " + column_label] = corr_data["Correlation with " + column_label].apply(lambda x: f"{x:.4f}")
-            corr_data["Variable Label"] = corr_data["Variable"].apply(lambda x: variable_labels.get(x, x))
-            st.dataframe(corr_data[["Variable Label", "Correlation with " + column_label]], use_container_width=True)
 
-            # Create a scatter plot for the variable with highest correlation.
-            top_corr_var = corr_data.iloc[0]["Variable"]
-            top_corr_label = variable_labels.get(top_corr_var, top_corr_var)
-            scatter_fig = px.scatter(data, x=color_column, y=top_corr_var, hover_name="mun", labels={color_column: column_label, top_corr_var: top_corr_label}, title=f"Scatter Plot: {column_label} vs {top_corr_label}")
+        if correlation_vars:
+            # 📌 Compute correlations between the primary variable (assumed "imds") and the selected variables.
+            corr_series = data[[color_column] + correlation_vars].corr()[color_column].drop(color_column)
+            corr_df = corr_series.reset_index().rename(columns={"index": "Variable", color_column: "Correlation"})
+            
+            # 📌 Calculate absolute correlations and sort by strength.
+            corr_df["Absolute Correlation"] = corr_df["Correlation"].abs()
+            corr_df = corr_df.sort_values("Absolute Correlation", ascending=False)
+            
+            # 📌 Format the correlation values for display.
+            corr_label = f"Correlation with {column_label}"
+            corr_df[corr_label] = corr_df["Correlation"].apply(lambda x: f"{x:.4f}")
+            corr_df["Variable Label"] = corr_df["Variable"].apply(lambda x: variable_labels.get(x, x))
+            
+            # 📌 Display the correlation table.
+            st.dataframe(corr_df[["Variable Label", corr_label]], use_container_width=True)
+            
+            # 📌 Determine the x-axis variable: prefer "ln_t400NTLpc2012" if selected.
+            if "ln_t400NTLpc2012" in correlation_vars:
+                x_var = "ln_t400NTLpc2012"
+            else:
+                x_var = corr_df.iloc[0]["Variable"]
+            x_label = variable_labels.get(x_var, x_var)
+            
+            # 📌 Create a scatter plot with a regression line (OLS) using Plotly.
+            scatter_fig = px.scatter(
+                data,
+                x=x_var,
+                y=color_column,
+                hover_name="mun",
+                labels={x_var: x_label, color_column: column_label},
+                title=f"Scatter Plot: {column_label} vs {x_label}",
+                trendline='ols'  # Adds an OLS regression line.
+            )
             st.plotly_chart(scatter_fig, use_container_width=True)
+
 
         # 🔸 Option to display raw data with filtering.
         if st.checkbox("Show raw data"):
