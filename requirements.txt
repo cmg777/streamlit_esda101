@@ -2,3 +2,4 @@ streamlit>=1.22.0
 geopandas>=0.12.2
 plotly>=5.13.0
 pandas>=1.5.3
+statsmodels>=0.15.0
