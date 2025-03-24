@@ -53,7 +53,7 @@ if "show_tutorial" not in st.session_state:
 # Sets the main title and provides a markdown description of the app.
 st.title("Regional Development Indicators of Bolivia: A Dashboard for Exploratory Analysis")
 st.markdown("""
-This application displays a choropleth map for several indicators of regional development.
+This application displays regional development indicators across 339 municipalities in Bolivia.
 """)
 
 # 🔹 SIDEBAR SETUP
