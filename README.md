@@ -1,4 +1,4 @@
-# Regional Development Indicators of Bolivia: Interactive Dashboard
+# Regional Development Indicators of Bolivia: An Interactive Dashboard
 
 ## 🧭 About this Application
 
