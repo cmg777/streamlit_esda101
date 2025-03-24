@@ -283,9 +283,9 @@ try:
         st.plotly_chart(hist_fig, use_container_width=True)
 
         # 🔸 Optional box plot display.
-        if st.checkbox("Show box plot"):
-            box_fig = px.box(data, y=color_column, labels={color_column: column_label}, title=f"Box Plot of {column_label}")
-            st.plotly_chart(box_fig, use_container_width=False)
+        #if st.checkbox("Show box plot"):
+        box_fig = px.box(data, y=color_column, labels={color_column: column_label}, title=f"Box Plot of {column_label}")
+        st.plotly_chart(box_fig, use_container_width=False)
 
         # 🔸 Optional correlation analysis with other variables.
         if st.checkbox("Show correlation with other variables"):
