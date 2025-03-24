@@ -382,7 +382,8 @@ This interactive application enables users to explore municipal development indi
 
 - Primary data source: [Municipal Atlas of the SDGs in Bolivia 2020](https://sdsnbolivia.org/Atlas/)  
 - Web app and computational notebook by [Carlos Mendez](https://carlos-mendez.org)
-
+- Erick Gonzales and Pedro Leoni also colaborated in the organization of the data and the creation of the initial geospatial database
+                    
 **Citation**:  
 Mendez, C. (2025, March 24). *Regional Development Indicators of Bolivia: A Dashboard for Exploratory Analysis* (Version 0.0.2) [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.15074864  
 
