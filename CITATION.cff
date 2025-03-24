@@ -4,8 +4,8 @@ authors:
 - family-names: "Mendez"
   given-names: "Carlos"
   orcid: " https://orcid.org/0000-0001-7978-2815"
-title: "My Research Software"
+title: "Regional Development Indicators of Bolivia: A Dashboard for Exploratory Analysis"
 version: 0.0.2
-doi: 10.5281/TBA
+doi: 10.5281/zenodo.15074864
 date-released: 2025-03-24
 url: "https://github.com/cmg777/streamlit_esda101"
