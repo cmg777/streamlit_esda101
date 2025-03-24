@@ -503,24 +503,6 @@ The **Municipal Sustainable Development Index (IMDS)** summarizes municipal perf
 
 ---
 
-## 🧩 Technical Highlights
-
-- Index scores range from **<40 to >80** (0–100 scale)  
-- Traffic-light visualization: green (goal met), red (critical)  
-- Composite indices for benchmarking municipalities  
-- Interactive map enables issue-specific and regional analysis  
-
----
-
-## 💡 Applications
-
-- 🏛️ **Governance**: Local planning, policy design, budgeting  
-- 🎓 **Research**: Open-access data for academic analysis (Excel, Stata, SDSS formats)  
-- 🧭 **Civil society**: Local development monitoring and accountability  
-- 💼 **Private sector**: Investment targeting based on local conditions  
-
----
-
 ## ⚠️ Limitations and Future Work
 
 - No disaggregated data for Indigenous Territories (TIOC)  
