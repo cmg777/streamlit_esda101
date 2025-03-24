@@ -1,6 +1,6 @@
 # Regional Development Indicators of Bolivia: Interactive Dashboard
 
-## 🧭 About This Application
+## 🧭 About this Application
 
 This interactive application enables users to explore municipal development indicators across Bolivia. It offers:
 
