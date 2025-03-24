@@ -399,7 +399,7 @@ Adopted in 2015, the **2030 Agenda for Sustainable Development** established 17 
 
 ## 📊 Composite Index: Índice Municipal de Desarrollo Sostenible (IMDS)
 
-The **Municipal Sustainable Development Index (IMDS)x** summarizes municipal performance using 62 indicators across 15 Sustainable Development Goals. Systmatic and reliable information on goals 12 and 14 are not available at municipal level.
+The **Municipal Sustainable Development Index (IMDS)** summarizes municipal performance using 62 indicators across 15 Sustainable Development Goals. Systmatic and reliable information on goals 12 and 14 are not available at municipal level.
 
 ### 🎯 Methodological Criteria
 
