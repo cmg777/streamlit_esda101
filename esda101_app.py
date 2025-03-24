@@ -329,8 +329,7 @@ try:
                 y=color_column,
                 hover_name="mun",
                 labels={x_var: x_label, color_column: column_label},
-                title=f"Scatter Plot: {column_label} vs {x_label}",
-                trendline='ols'  # Adds an OLS regression line.
+                title=f"Scatter Plot: {column_label} vs {x_label}"
             )
             st.plotly_chart(scatter_fig, use_container_width=True)
 
