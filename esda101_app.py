@@ -356,22 +356,20 @@ try:
         st.subheader("Documentation")
         st.markdown("""### About This Application
 
-This interactive choropleth map application allows you to explore various municipal development indicators. The data is displayed geographically.
-        
-### Data Sources
-
-The data comes from multiple sources compiled into a single geospatial dataset. It includes:
-- 🟢 Socioeconomic indicators
-- 🟢 Development indices
-- 🟢 Geographic information
-
+This interactive application allows you to explore various municipal development indicators. 
+You can visualize the data on a map, analyze distributions, compare regions, and download the data.
+                    
 ### Using the Application
 1. 📝 **Select variables**: Use the dropdown or search.
 2. 🎨 **Customize the map**.
 3. 📊 **Explore the data**: View statistics.
 4. 🔍 **Compare regions**.
 5. 💾 **Download data**.
-        
+
+#### Data Sources and Credits:
+- Most of the indicators are from the [Municipal Atlas of the SDGs in Bolivia](https://sdsnbolivia.org/Atlas/). 
+- This interactive app and its computatational notebook are done by [Carlos Mendez](https://carlos-mendez.org).                                       
+
 ### Variable Descriptions""")
 
         # 🔸 Display variable descriptions if available.
