@@ -27,9 +27,11 @@ This interactive application enables users to explore municipal development indi
 
 ## 📚 Data Sources and Credits
 
-- Primary source: [Municipal Atlas of the SDGs in Bolivia](https://sdsnbolivia.org/Atlas/)  
-- App and computational notebook by [Carlos Mendez](https://carlos-mendez.org)
-- Erick Gonzales and Pedro Leoni also colaborated in the organization of the data and the creation of the initial geospatial database
+- Primary data source: [Municipal Atlas of the SDGs in Bolivia 2020.](https://sdsnbolivia.org/Atlas/) 
+- Additional indicators for multiple years were sourced from the [GeoQuery project.](https://www.aiddata.org/geoquery) 
+- Administrative boundaries from the [GeoBoundaries database](https://www.geoboundaries.org/)                                                            
+- Streamlit web app and computational notebook by [Carlos Mendez.](https://carlos-mendez.org)
+- Erick Gonzales and Pedro Leoni also colaborated in the organization of the data and the creation of the initial geospatial database.
  
 
 **Citation**:  
