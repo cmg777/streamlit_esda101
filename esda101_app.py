@@ -51,7 +51,7 @@ if "show_tutorial" not in st.session_state:
 
 # 🔹 APPLICATION TITLE AND DESCRIPTION
 # Sets the main title and provides a markdown description of the app.
-st.title("Interactive Choropleth Map")
+st.title("Exploratory Analysis of Regional Data")
 st.markdown("""
 This application displays a choropleth map for several indicators of regional development.
 """)
