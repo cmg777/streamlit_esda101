@@ -354,10 +354,14 @@ try:
     # 🔹 TAB 3: Documentation
     with tab3:
         st.subheader("Documentation")
-        st.markdown("""### About This Application
+        st.markdown("""
+
+### About This Application
 
 This interactive application allows you to explore various municipal development indicators. 
 You can visualize the data on a map, analyze distributions, compare regions, and download the data.
+                    
+
                     
 ### Using the Application
 1. 📝 **Select variables**: Use the dropdown or search.
@@ -368,7 +372,14 @@ You can visualize the data on a map, analyze distributions, compare regions, and
 
 #### Data Sources and Credits:
 - Most of the indicators are from the [Municipal Atlas of the SDGs in Bolivia](https://sdsnbolivia.org/Atlas/). 
-- This interactive app and its computatational notebook are done by [Carlos Mendez](https://carlos-mendez.org).                                       
+- This interactive app and its computatational notebook are done by [Carlos Mendez](https://carlos-mendez.org).
+                                      
+Mendez, C. (2025, March 24). Regional Development Indicators of Bolivia: A Dashboard for Exploratory Analysis (Version 0.0.2) [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.15074864
+
+> NOTE: This application is for educational purposes only and it is still a work in progress.                    
+
+### About the Municipal Atlas of the SDGs in Bolivia and its Indicators
+                    
 
 ### Variable Descriptions""")
 
